@@ -8,7 +8,10 @@ import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.exception.ResourceNotFoundException;
 import com.juno.model.ProductModel;
 import com.juno.repository.*;
+import com.juno.utils.SpecificationsBuilder;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,17 +77,45 @@ public class ProductService {
     }
 
     @Transactional
-    public void updateProduct(ProductDTO productDTO) {
-        productRepo.save(convertDTOtoEntity(productDTO));
+    public void updateProduct(ProductDTO productDTO, Long id) {
+        Product product = productRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        product.setName(productDTO.getName());
+        productRepo.save(product);
     }
 
     @Transactional
     public void deleteProduct(Long id) {
+        productRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         productRepo.deleteById(id);
     }
 
+    public List<ProductModel> setCategoryRepository(String keywords) {
+        SpecificationsBuilder<Product> specificationsBuilder = new SpecificationsBuilder<>();
+
+        if (!StringUtils.isEmpty(keywords)) {
+            specificationsBuilder
+                    .or(builder -> {
+                        builder.like("name", keywords);
+                        builder.like("description", keywords);
+                        // Add additional search conditions if needed
+                        // builder.like("anotherField", keywords);
+                    });
+        }
+
+        Specification<Product> spec = specificationsBuilder.build();
+
+        return productRepo.findAll(spec).stream()
+                .map(this::convertEntityToModel)
+                .collect(Collectors.toList());
+    }
+
     public Product convertDTOtoEntity(ProductDTO productDTO) {
-        return new Product();
+        Product product = new Product();
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        return product;
     }
 
     public ProductModel convertEntityToModel(Product product) {

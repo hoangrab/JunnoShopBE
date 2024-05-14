@@ -58,8 +58,9 @@ public class ProductController {
     }
 
     @PutMapping("product/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody Product product, @PathVariable int id) {
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO, @PathVariable Long id) {
         try {
+            productService.updateProduct(productDTO,id);
             return ResponseEntity.status(HttpStatus.OK).body("ok nha con");
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -67,8 +68,9 @@ public class ProductController {
     }
 
     @DeleteMapping("product/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         try {
+            productService.deleteProduct(id);
             return ResponseEntity.status(HttpStatus.OK).body("ok nha con");
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

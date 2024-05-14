@@ -40,7 +40,7 @@ public class DefaultData implements ApplicationRunner {
     public void createAdmin() {
         if(userRepo.count() == 0) {
             User user = new User();
-            Role role = roleRepo.findByName("ROLE_ADMIN");
+            Role role = roleRepo.findByName("ROLE_ADMIN").get();
             user.setRole(role);
             user.setGmail("admin");
             user.setEnabled(true);

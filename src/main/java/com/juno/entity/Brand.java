@@ -1,5 +1,6 @@
 package com.juno.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,9 @@ public class Brand {
 
     private String logo;
 
+    private String url_id;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "brand")
     private List<Product> products;
 }
