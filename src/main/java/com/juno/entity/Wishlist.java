@@ -18,7 +18,7 @@ public class Wishlist {
     private Long id;
 
     @OneToMany(mappedBy = "wishlist",cascade = CascadeType.ALL)
-    private List<Product> productList;
+    private List<WishlistProduct> wishlistProducts;
 
     @OneToOne
     private User user;

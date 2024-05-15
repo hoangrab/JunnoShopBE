@@ -1,6 +1,5 @@
 package com.juno.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,22 +11,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "product_item")
-public class ProductItem {
+@Table(name = "wishlist_product")
+public class WishlistProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "color_id",referencedColumnName = "id")
-    private Color color;
-
-    @Column
-    private int quantity;
+    private Wishlist wishlist;
 
     @ManyToOne
-    private SizeOption size_option;
-
-    @ManyToOne
-    private Product productIt;
+    private Product product;
 }

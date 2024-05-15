@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class ConvertTime {
@@ -13,12 +14,12 @@ public class ConvertTime {
     }
 
     public static String convertLocalDatetime(LocalDateTime localDateTime) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(localDateTime).toString();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return localDateTime.format(dateTimeFormatter);
     }
 
     public static Date stringToDate(String s) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             Date date = dateFormat.parse(s);
             System.out.println("gia tri ok: " +date);

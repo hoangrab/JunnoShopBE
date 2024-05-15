@@ -36,7 +36,7 @@ public class CouponsController {
     }
 
     @PostMapping("coupon")
-    public ResponseEntity<?> creatCoupon(@RequestBody CouponDTO couponDTO) {
+    public ResponseEntity<?> creatCoupon(@ModelAttribute CouponDTO couponDTO) {
         try {
             couponService.createCoupon(couponDTO);
             return ResponseEntity.ok().build();
@@ -46,7 +46,7 @@ public class CouponsController {
     }
 
     @PutMapping("coupon/{id}")
-    public ResponseEntity<?> updateCoupon(@PathVariable Long id, @RequestBody CouponDTO couponDTO) {
+    public ResponseEntity<?> updateCoupon(@PathVariable Long id, @ModelAttribute CouponDTO couponDTO) {
         try {
             couponService.updateCoupon(id, couponDTO);
             return ResponseEntity.ok().build();

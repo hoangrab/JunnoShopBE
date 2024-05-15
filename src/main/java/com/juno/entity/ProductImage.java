@@ -1,5 +1,6 @@
 package com.juno.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,11 +22,13 @@ public class ProductImage {
     @Column
     private String idUrl;
 
+    @JsonIgnore
     @ManyToOne
     private Product product;
 
-    public ProductImage(String imageUrl, String idUrl) {
+    public ProductImage(String imageUrl, String idUrl, Product product) {
         this.imageUrl = imageUrl;
         this.idUrl = idUrl;
+        this.product = product;
     }
 }

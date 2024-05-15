@@ -27,8 +27,9 @@ public class CouponService {
 
     @Transactional
     public void createCoupon(CouponDTO couponDTO) {
-        couponRepo.findByCode(couponDTO.getCode())
-                .orElseThrow(() -> new ResourceAlreadyExitsException("Coupon already exists"));
+        if(couponRepo.findByCode(couponDTO.getCode()).isPresent()) {
+            throw new ResourceAlreadyExitsException("Coupon already exists");
+        }
         Coupons coupons = new Coupons();
         coupons.setCode(couponDTO.getCode());
         coupons.setPercent(couponDTO.getPercent());

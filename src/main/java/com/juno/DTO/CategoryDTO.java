@@ -13,6 +13,4 @@ public class CategoryDTO {
     @NotBlank
     private String name;
     private String description;
-    private Long parentId;
-    private MultipartFile logo;
 }

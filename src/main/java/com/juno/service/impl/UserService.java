@@ -69,13 +69,15 @@ public class UserService {
         user.setFullName(registerRequest.getFullName());
         user.setGmail(registerRequest.getUserName());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        Role role = roleRepo.findByName("ROLE_USER");
+        Role role = roleRepo.findByName("ROLE_USER").get();
         user.setRole(role);
         user.setEnabled(true);
         Wishlist wishlist = new Wishlist();
         wishlistRepo.save(wishlist);
         user.setWishlist(wishlist);
         userRepo.save(user);
+        wishlist.setUser(user);
+        wishlistRepo.save(wishlist);
     }
 
     @Transactional
@@ -87,13 +89,15 @@ public class UserService {
             user.setPassword(passwordEncoder.encode("passDefault"));
             user.setAvatar(googleRequest.getPicture());
             user.setFullName(googleRequest.getName());
-            Role role = roleRepo.findByName("ROLE_USER");
+            Role role = roleRepo.findByName("ROLE_USER").get();
             user.setRole(role);
             user.setEnabled(true);
             Wishlist wishlist = new Wishlist();
             wishlistRepo.save(wishlist);
             user.setWishlist(wishlist);
             userRepo.save(user);
+            wishlist.setUser(user);
+            wishlistRepo.save(wishlist);
         }
         User u = userRepo.findByGmail(googleRequest.getEmail()).get();
         Authentication authentication = authenticationManager.authenticate(
@@ -150,7 +154,7 @@ public class UserService {
         user.setGmail(userDTO.getGmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEnabled(userDTO.isEnabled());
-        user.setRole(roleRepo.findByName("ROLE_USER"));
+        user.setRole(roleRepo.findByName("ROLE_USER").get());
         user.setCity(userDTO.getCity());
         user.setDistrict(userDTO.getDistrict());
         user.setAddressDetail(userDTO.getAddressDetail());

@@ -5,6 +5,7 @@ import com.juno.DTO.ProductDTO;
 import com.juno.entity.Product;
 import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.exception.ResourceNotFoundException;
+import com.juno.model.ProductModel;
 import com.juno.service.impl.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,16 +27,18 @@ public class ProductController {
                                              @RequestParam(value = "color",required = false) String color,
                                              @RequestParam(value = "psize",required = false) String psize) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body("ok nha con");
+            List<ProductModel> list = productService.getAllProducts();
+            return ResponseEntity.status(HttpStatus.OK).body(list);
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @GetMapping("product/{id}")
-    public ResponseEntity<?> findProductById(@PathVariable("id") int id) {
+    public ResponseEntity<?> findProductById(@PathVariable("id") Long id) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body("ok nha con");
+            ProductModel productModel = productService.getProductById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(productModel);
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -44,9 +47,8 @@ public class ProductController {
     @PostMapping("product")
     public ResponseEntity<?> addProduct(@ModelAttribute ProductDTO product) {
         try {
-//            productService.saveProduct(product);
-            System.out.println(product.getFieldProducts());
-            return ResponseEntity.status(HttpStatus.OK).body("ok nha con");
+            productService.saveProduct(product);
+            return ResponseEntity.status(HttpStatus.OK).build();
         }catch (ResourceAlreadyExitsException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }catch (ResourceNotFoundException ex) {

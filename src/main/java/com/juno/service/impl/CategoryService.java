@@ -7,6 +7,7 @@ import com.juno.exception.ResourceNotFoundException;
 import com.juno.model.CategoryModel;
 import com.juno.repository.CategoryRepository;
 import com.juno.service.ICategoryService;
+import com.juno.utils.ConvertTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,9 +33,8 @@ public class CategoryService implements ICategoryService {
     @Override
     @Transactional(readOnly = true)
     public CategoryModel getById(Long id) {
-        categoryRepo.findById(id).map(this::convertEntityToModel)
+        return categoryRepo.findById(id).map(this::convertEntityToModel)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found Category id: " + id));
-        return null;
     }
 
     @Override
@@ -43,13 +43,13 @@ public class CategoryService implements ICategoryService {
         if(categoryRepo.findByName(categoryDTO.getName()).isPresent()) {
             throw new ResourceAlreadyExitsException("Name category is duplicate");
         }
-        Optional<Category> parent = categoryRepo.findById(categoryDTO.getParentId());
-        if(parent.isEmpty()) {
-            throw new ResourceNotFoundException("Id category parent not found");
-        }
+//        Optional<Category> parent = categoryRepo.findById(categoryDTO.getParentId());
+//        if(parent.isEmpty()) {
+//            throw new ResourceNotFoundException("Id category parent not found");
+//        }
         Category category = new Category();
         convertDTOToEntity(categoryDTO,category);
-        category.setParent(parent.get());
+//        category.setParent(parent.get());
         categoryRepo.save(category);
     }
 
@@ -58,6 +58,10 @@ public class CategoryService implements ICategoryService {
     public void updateCategory(CategoryDTO categoryDTO, Long id) {
         Optional<Category> category = categoryRepo.findById(id);
         if(category.isEmpty()) throw new ResourceNotFoundException("Id category not found");
+        if(!categoryDTO.getName().equals(category.get().getName()) &&
+                categoryRepo.findByName(categoryDTO.getName()).isPresent()) {
+            throw new ResourceAlreadyExitsException("Name category is duplicate");
+        }
         convertDTOToEntity(categoryDTO,category.get());
         categoryRepo.save(category.get());
     }
@@ -73,16 +77,16 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void convertDTOToEntity(CategoryDTO categoryDTO, Category category) {
-//        category.setName(categoryDTO.getName());
-//        category.setDescription(categoryDTO.getDescription());
-//        if(categoryDTO.getLogo() != null) {
-//
-//        }
+        category.setName(categoryDTO.getName());
+        category.setDescription(categoryDTO.getDescription());
     }
 
     @Override
     public CategoryModel convertEntityToModel(Category category) {
+        System.out.println(category.getTime_created());
         return new CategoryModel(category.getId(),category.getName(),
-                category.getDescription(),category.getParent().getId(),category.getImage());
+                category.getDescription(),category.getProducts().size()
+                , ConvertTime.convertLocalDatetime(category.getTime_created()),
+                 ConvertTime.convertLocalDatetime(category.getTime_updated()));
     }
 }

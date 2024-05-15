@@ -20,7 +20,16 @@ public class Product {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column
+    private boolean flash_sale;
+
     private String description;
+
+    @Column
+    private Long original_price;
+
+    @Column
+    private Long sale_price;
 
     @ManyToOne
     private Brand brand;
@@ -31,8 +40,8 @@ public class Product {
     @ManyToOne
     private Category category;
 
-    @ManyToOne
-    private Wishlist wishlist;
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    private List<WishlistProduct> wishlistProducts;
 
     @OneToMany(mappedBy = "productIt")
     private List<ProductItem> productItems;

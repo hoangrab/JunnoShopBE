@@ -1,11 +1,13 @@
 package com.juno.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juno.DTO.FieldProduct;
 import com.juno.DTO.ProductDTO;
 import com.juno.entity.*;
 import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.exception.ResourceNotFoundException;
+import com.juno.model.ProductItemModel;
 import com.juno.model.ProductModel;
 import com.juno.repository.*;
 import com.juno.utils.SpecificationsBuilder;
@@ -36,6 +38,10 @@ public class ProductService {
         return productRepo.findAll().stream().map(this::convertEntityToModel).collect(Collectors.toList());
     }
 
+    public ProductModel getProductById(Long id) {
+        return convertEntityToModel(productRepo.findById(id).get());
+    }
+
     public List<ProductModel> searchProducts(String keyword) {
         return null;
     }
@@ -50,9 +56,19 @@ public class ProductService {
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setCategory(category);
+        product.setFlash_sale(productDTO.getFlashSale().equals("true"));
+        product.setSale_price(productDTO.getPriceReduced());
+        product.setOriginal_price(productDTO.getPriceCurrent());
+        product.setDescription(productDTO.getDescription());
+        productRepo.save(product);
         ObjectMapper objectMapper = new ObjectMapper();
         productDTO.getFieldProducts().forEach(e -> {
-            FieldProduct fieldProduct = objectMapper.convertValue(e, FieldProduct.class);
+            FieldProduct fieldProduct = null;
+            try {
+                fieldProduct = objectMapper.readValue(e, FieldProduct.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
             Color color = colorRepo.findByName(fieldProduct.getColor())
                     .orElse(colorRepo.save(new Color(fieldProduct.getColor())));
             SizeOption sizeOption = sizeOptionRepo.findByName(fieldProduct.getSize())
@@ -68,8 +84,8 @@ public class ProductService {
             List<ProductImage> productImages = new ArrayList<>();
             for(int i = 0; i < productDTO.getImage().length; i++) {
                 Map data = cloudinaryService.upload(productDTO.getImage()[i]);
-                productImages.add(productImageRepo.save(new ProductImage(data.get("url").toString(),
-                        data.get("public_id").toString())));
+                productImages.add(productImageRepo.save(
+                        new ProductImage(data.get("url").toString(),data.get("public_id").toString(),product)));
             }
             product.setProductImages(productImages);
         }
@@ -123,6 +139,20 @@ public class ProductService {
         productModel.setId(product.getId());
         productModel.setName(product.getName());
         productModel.setDescription(product.getDescription());
+        productModel.setFlashSale(product.isFlash_sale());
+        productModel.setOriginalPrice(product.getOriginal_price());
+        productModel.setSalePrice(product.getSale_price());
+        List<ProductItemModel> listProductItemModel = new ArrayList<>();
+        product.getProductItems().forEach(e -> {
+            ProductItemModel productItemModel = new ProductItemModel();
+            productItemModel.setSize(e.getSize_option().getName());
+            productItemModel.setColor(e.getColor().getName());
+            productItemModel.setQuantity(e.getQuantity());
+            listProductItemModel.add(productItemModel);
+        });
+        productModel.setCategory(product.getCategory());
+        productModel.setProductItems(listProductItemModel);
+        productModel.setProductImages(product.getProductImages());
         return productModel;
     }
 }
