@@ -16,10 +16,20 @@ public class CouponsController {
     private final CouponService couponService;
 
     @GetMapping("coupons")
-    public ResponseEntity<?> getAllCoupons(@RequestParam(value = "code",required = false) String code) {
+    public ResponseEntity<?> getAllCoupons() {
         try {
             List<Coupons> list = couponService.getAllCoupons();
             return ResponseEntity.ok(list);
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("coupon")
+    public ResponseEntity<?> getCouponByCode(@RequestParam(value = "code") String code) {
+        try {
+            Coupons coupon = couponService.getCouponByCode(code);
+            return ResponseEntity.ok(coupon);
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -26,7 +26,7 @@ public class Product {
     private String description;
 
     @Column
-    private Long original_price;
+    private Long original;
 
     @Column
     private Long sale_price;

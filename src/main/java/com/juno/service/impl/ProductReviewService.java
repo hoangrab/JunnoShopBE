@@ -38,7 +38,7 @@ public class ProductReviewService {
         productReview.setProductRv(product);
         productReview.setUser(user);
         productReview.setRating(reviewDTO.getRating());
-        productReview.setContent(productReview.getContent());
+        productReview.setContent(reviewDTO.getContent());
         productReviewRepo.save(productReview);
     }
 

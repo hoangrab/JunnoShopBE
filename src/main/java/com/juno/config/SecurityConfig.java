@@ -62,9 +62,10 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(requests ->
                         requests
-                                .requestMatchers(PUBLIC_URLS).permitAll()
-                                .requestMatchers(PRIVATE_URLS).hasAnyRole("ADMIN")
-                                .anyRequest().authenticated()
+//                                .requestMatchers(PUBLIC_URLS).permitAll()
+//                                .requestMatchers(PRIVATE_URLS).hasAnyRole("ADMIN")
+//                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
 //                .oauth2ResourceServer(oauth2 -> oauth2.jwt(t -> t.jwtAuthenticationConverter(jwtAuthConverter)))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

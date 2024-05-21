@@ -15,6 +15,7 @@ import com.juno.repository.WishlistRepo;
 import com.juno.request.GoogleRequest;
 import com.juno.request.LoginRequest;
 import com.juno.request.RegisterRequest;
+import com.juno.service.IUserService;
 import io.jsonwebtoken.Jwt;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements IUserService {
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
     private final PasswordEncoder passwordEncoder;
@@ -109,6 +110,7 @@ public class UserService {
         map.put("user",convertEntityToModel(u));
         return map;
     }
+
 
     public List<UserModel> getAll(Pageable pageable) {
         return userRepo.findAll(pageable).stream().map(this::convertEntityToModel).collect(Collectors.toList());

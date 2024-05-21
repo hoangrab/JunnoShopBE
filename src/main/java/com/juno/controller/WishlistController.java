@@ -2,6 +2,7 @@ package com.juno.controller;
 
 import com.juno.DTO.WishlistDTO;
 import com.juno.entity.Wishlist;
+import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.model.ProductModel;
 import com.juno.service.impl.WishlistService;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,9 @@ public class WishlistController {
     private final WishlistService wishlistService;
 
     @GetMapping("wishlist/{id}")
-    public ResponseEntity<?> getWishlist(@PathVariable Long idUser) {
+    public ResponseEntity<?> getWishlist(@PathVariable Long id) {
         try {
-            List<ProductModel> list = wishlistService.getProductInWishlist(idUser);
+            List<ProductModel> list = wishlistService.getProductInWishlist(id);
             return ResponseEntity.status(HttpStatus.OK).body(list);
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -32,12 +33,15 @@ public class WishlistController {
         try {
             wishlistService.save(wishlist);
             return ResponseEntity.status(HttpStatus.OK).body(true);
-        }catch (Exception e) {
+        }catch (ResourceAlreadyExitsException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
+        catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @DeleteMapping("wishlist/{id}")
+    @PutMapping("wishlist")
     public ResponseEntity<?> deleteWishlist(@RequestBody WishlistDTO wishlist) {
         try {
             wishlistService.deleteProductInWishlist(wishlist);

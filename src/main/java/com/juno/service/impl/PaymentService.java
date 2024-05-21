@@ -21,7 +21,7 @@ public class PaymentService {
         String vnp_Command = "pay";
         String orderType = "other";
         long amount = Long.parseLong(sotien) * 100;
-        String bankCode = "JCB";
+        String bankCode = "NCB";
 
         String vnp_TxnRef = VnpayConfig.getRandomNumber(8);
         String vnp_IpAddr = "127.0.0.1";

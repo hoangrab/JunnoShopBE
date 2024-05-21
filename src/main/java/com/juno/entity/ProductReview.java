@@ -24,6 +24,6 @@ public class ProductReview {
     @ManyToOne(cascade = CascadeType.ALL)
     private Product productRv;
 
-    @OneToOne
+    @ManyToOne
     private User user;
 }

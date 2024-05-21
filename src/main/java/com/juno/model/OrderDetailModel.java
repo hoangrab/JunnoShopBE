@@ -7,9 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductItemModel {
+public class OrderDetailModel {
     private Long id;
-    private String color;
-    private String size;
+    private String name;
     private int quantity;
+    private String image;
+    private String size;
+    private String color;
+    private Long price;
 }

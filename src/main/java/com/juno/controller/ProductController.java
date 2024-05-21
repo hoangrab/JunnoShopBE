@@ -22,12 +22,11 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("products")
-    public ResponseEntity<?> findAllProducts(@RequestParam(value = "page", defaultValue = "0") int page,
-                                             @RequestParam(value = "size", defaultValue = "10") int size,
-                                             @RequestParam(value = "color",required = false) String color,
-                                             @RequestParam(value = "psize",required = false) String psize) {
+    public ResponseEntity<?> findAllProducts(@RequestParam(value = "idCate", defaultValue = "0") Long idCate,
+                                             @RequestParam(value = "sortName", defaultValue = "") String sname,
+                                             @RequestParam(value = "sortPrice",defaultValue = "") String sprice) {
         try {
-            List<ProductModel> list = productService.getAllProducts();
+            List<ProductModel> list = productService.searchProducts(idCate, sname, sprice);
             return ResponseEntity.status(HttpStatus.OK).body(list);
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

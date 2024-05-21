@@ -7,12 +7,16 @@ import com.juno.DTO.ProductDTO;
 import com.juno.entity.*;
 import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.exception.ResourceNotFoundException;
+import com.juno.model.ProductElasticModel;
 import com.juno.model.ProductItemModel;
 import com.juno.model.ProductModel;
+import com.juno.model.ProductReviewModel;
 import com.juno.repository.*;
 import com.juno.utils.SpecificationsBuilder;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +37,9 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ColorRepo colorRepo;
     private final SizeOptionRepo sizeOptionRepo;
+    private final ProductReviewService productReviewService;
+    private final ProductElasticService productElasticService;
+    private final ProductElasticSearchRepo productElasticSearchRepo;
 
     public List<ProductModel> getAllProducts() {
         return productRepo.findAll().stream().map(this::convertEntityToModel).collect(Collectors.toList());
@@ -40,10 +47,6 @@ public class ProductService {
 
     public ProductModel getProductById(Long id) {
         return convertEntityToModel(productRepo.findById(id).get());
-    }
-
-    public List<ProductModel> searchProducts(String keyword) {
-        return null;
     }
 
     @Transactional
@@ -58,7 +61,7 @@ public class ProductService {
         product.setCategory(category);
         product.setFlash_sale(productDTO.getFlashSale().equals("true"));
         product.setSale_price(productDTO.getPriceReduced());
-        product.setOriginal_price(productDTO.getPriceCurrent());
+        product.setOriginal(productDTO.getPriceCurrent());
         product.setDescription(productDTO.getDescription());
         productRepo.save(product);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -90,6 +93,10 @@ public class ProductService {
             product.setProductImages(productImages);
         }
         productRepo.save(product);
+        ProductElasticModel productElasticModel = new ProductElasticModel();
+        productElasticModel.setId(product.getId());
+        productElasticModel.setName(product.getName());
+        productElasticSearchRepo.save(productElasticModel);
     }
 
     @Transactional
@@ -105,24 +112,27 @@ public class ProductService {
         productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         productRepo.deleteById(id);
+        productElasticSearchRepo.deleteById(id);
     }
 
-    public List<ProductModel> setCategoryRepository(String keywords) {
-        SpecificationsBuilder<Product> specificationsBuilder = new SpecificationsBuilder<>();
-
-        if (!StringUtils.isEmpty(keywords)) {
-            specificationsBuilder
-                    .or(builder -> {
-                        builder.like("name", keywords);
-                        builder.like("description", keywords);
-                        // Add additional search conditions if needed
-                        // builder.like("anotherField", keywords);
-                    });
+    public List<ProductModel> searchProducts(Long idCate,String sortName, String sortPrice) {
+        Specification<Product> specification1 = (root, query, builder) -> {
+            return idCate != 0 ?builder.equal(root.get("category").get("id"), idCate) : null;
+//            return builder.or(predicates.toArray(new Predicate[0]));
+        };
+        Sort sort = null;
+        if(StringUtils.isNotEmpty(sortName)) {
+            sort = Sort.by(sortName.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "name");
         }
-
-        Specification<Product> spec = specificationsBuilder.build();
-
-        return productRepo.findAll(spec).stream()
+        if(StringUtils.isNotEmpty(sortPrice)) {
+            sort = Sort.by(sortPrice.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC,"original").descending();
+        }
+        if(sort != null) {
+            return productRepo.findAll(specification1,sort).stream()
+                    .map(this::convertEntityToModel)
+                    .collect(Collectors.toList());
+        }
+        return productRepo.findAll(specification1).stream()
                 .map(this::convertEntityToModel)
                 .collect(Collectors.toList());
     }
@@ -140,16 +150,19 @@ public class ProductService {
         productModel.setName(product.getName());
         productModel.setDescription(product.getDescription());
         productModel.setFlashSale(product.isFlash_sale());
-        productModel.setOriginalPrice(product.getOriginal_price());
+        productModel.setOriginalPrice(product.getOriginal());
         productModel.setSalePrice(product.getSale_price());
         List<ProductItemModel> listProductItemModel = new ArrayList<>();
         product.getProductItems().forEach(e -> {
             ProductItemModel productItemModel = new ProductItemModel();
+            productItemModel.setId(e.getId());
             productItemModel.setSize(e.getSize_option().getName());
             productItemModel.setColor(e.getColor().getName());
             productItemModel.setQuantity(e.getQuantity());
             listProductItemModel.add(productItemModel);
         });
+        List<ProductReviewModel> list = productReviewService.findAll(product.getId());
+        productModel.setProductReviews(list);
         productModel.setCategory(product.getCategory());
         productModel.setProductItems(listProductItemModel);
         productModel.setProductImages(product.getProductImages());

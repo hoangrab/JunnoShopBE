@@ -21,4 +21,5 @@ public class ProductModel {
     private Category category;
     private List<ProductImage> productImages;
     private List<ProductItemModel> productItems;
+    private List<ProductReviewModel> productReviews;
 }

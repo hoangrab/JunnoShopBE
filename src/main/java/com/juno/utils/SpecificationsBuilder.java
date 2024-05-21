@@ -22,49 +22,58 @@ public class SpecificationsBuilder<T> {
     }
 
     public SpecificationsBuilder<T> like(String field, String value) {
-        specifications.add((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(field), "%" + value + "%"));
+        specifications.add((root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get(field), "%" + value + "%")
+        );
         return this;
     }
 
-    // Phương thức tìm kiếm theo trường ENUM
     public SpecificationsBuilder<T> enumSearch(String field, String value) {
         specifications.add((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get(field), Enum.valueOf(EnumType.class, value)));
+                criteriaBuilder.equal(root.get(field), Enum.valueOf(EnumType.class, value))
+        );
         return this;
     }
 
-    // Phương thức tìm kiếm theo trường Boolean
     public SpecificationsBuilder<T> booleanSearch(String field, Boolean value) {
         specifications.add((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get(field), value));
+                criteriaBuilder.equal(root.get(field), value)
+        );
         return this;
     }
 
-    // Phương thức tìm kiếm theo trường Integer
     public SpecificationsBuilder<T> integerSearch(String field, Integer value) {
         specifications.add((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get(field), value));
+                criteriaBuilder.equal(root.get(field), value)
+        );
         return this;
     }
 
-    // Phương thức tìm kiếm theo điều kiện AND
     public SpecificationsBuilder<T> and(Consumer<SpecificationsBuilder<T>> specificationConsumer) {
+        boolean originalCondition = isOrCondition;
+        isOrCondition = false;
         specificationConsumer.accept(this);
+        isOrCondition = originalCondition;
         return this;
     }
 
-    // Phương thức tìm kiếm theo điều kiện OR
     public SpecificationsBuilder<T> or(Consumer<SpecificationsBuilder<T>> specificationConsumer) {
+        boolean originalCondition = isOrCondition;
         isOrCondition = true;
         specificationConsumer.accept(this);
-        isOrCondition = false;
+        isOrCondition = originalCondition;
         return this;
     }
 
     public Specification<T> build() {
-        Specification<T> result = null;
-        for (Specification<T> specification : specifications) {
-            result = (result == null) ? Specification.where(specification) : isOrCondition ? Specification.where(result).or(specification) : result.and(specification);
+        if (specifications.isEmpty()) {
+            return null;
+        }
+
+        Specification<T> result = specifications.get(0);
+        for (int i = 1; i < specifications.size(); i++) {
+            Specification<T> specification = specifications.get(i);
+            result = isOrCondition ? Specification.where(result).or(specification) : result.and(specification);
         }
         return result;
     }

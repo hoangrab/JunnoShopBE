@@ -1,28 +1,23 @@
 package com.juno.DTO;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderDTO {
+public class TransactionDTO {
+    private Long idUser;
+    private String listProductItem;
     private String fullName;
-    private String phone;
     private String email;
+    private String phone;
     private String city;
     private String district;
-    private String wards;
+    private String ward;
     private String addressDetail;
-    private String description;
-    private String methodTransport;
-    private String methodPay;
-    private Long total;
-    private List<Long> ProductItems;
+    private String note;
+    private Long money;
+    private Long moneyReduced;
 }
-

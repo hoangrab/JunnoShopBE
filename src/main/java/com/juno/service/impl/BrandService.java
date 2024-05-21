@@ -6,6 +6,7 @@ import com.juno.entity.ProductImage;
 import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.exception.ResourceNotFoundException;
 import com.juno.repository.BrandRepo;
+import com.juno.service.IBrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class BrandService {
+public class BrandService implements IBrandService {
     private final BrandRepo brandRepo;
     private final CloudinaryService cloudinaryService;
 

@@ -5,20 +5,31 @@ import com.juno.entity.Coupons;
 import com.juno.exception.ResourceAlreadyExitsException;
 import com.juno.exception.ResourceNotFoundException;
 import com.juno.repository.CouponRepo;
+import com.juno.service.ICouponService;
 import com.juno.utils.ConvertTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CouponService {
+public class CouponService implements ICouponService {
     private final CouponRepo couponRepo;
 
     public List<Coupons> getAllCoupons() {
         return couponRepo.findAll();
+    }
+
+    public Coupons getCouponByCode(String code) {
+        Date date = new Date();
+        System.out.println(date);
+        Optional<Coupons> coupon = couponRepo.findByCodeAndDateStartLessThanAndDateEndGreaterThan(code,date,date);
+        System.out.println(coupon.get());
+        return coupon.get();
     }
 
     public Coupons getCouponById(Long id) {
